@@ -4,7 +4,11 @@ Script básico para probar conexión con AWS usando Boto3
 """
 
 import boto3
+import logging
 from botocore.exceptions import ClientError, NoCredentialsError
+
+# Configure logging
+logger = logging.getLogger(__name__)
 
 def verificar_conexion():
     """Verifica la conexión con AWS"""
@@ -15,34 +19,41 @@ def verificar_conexion():
         
         identidad = sts.get_caller_identity()
         
-        print("✅ Conexión exitosa con AWS")
-        print(f"\nDetalles de la cuenta:")
-        print(f"  Account ID: {identidad['Account']}")
-        print(f"  User ARN:   {identidad['Arn']}")
-        print(f"  User ID:    {identidad['UserId']}")
+        logger.info("✅ Conexión exitosa con AWS")
+        logger.info(f"Detalles de la cuenta:")
+        logger.info(f"  Account ID: {identidad['Account']}")
+        logger.info(f"  User ARN:   {identidad['Arn']}")
+        logger.info(f"  User ID:    {identidad['UserId']}")
+
+
         
         session = boto3.session.Session() # Obtiene región configurada
 
         region = session.region_name or 'No configurada'
-        print(f"  Región:     {region}")
+        logger.info(f"  Región:     {region}")
         
         return True
         
     except NoCredentialsError:
-        print("❌ Error: No se encontraron credenciales de AWS")
-        print("Ejecuta: aws configure")
+        logger.error("No se encontraron credenciales de AWS")
+        logger.error("Ejecuta: aws configure")
         return False
         
     except ClientError as e:
-        print(f"❌ Error al conectar con AWS: {e}")
+        logger.error(f"Error al conectar con AWS: {e}")
         return False
 
     
 
 if __name__ == "__main__":
-    print("=" * 50)
-    print("Verificación de Conexión AWS con Boto3")
-    print("=" * 50)
+    # Configure logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s'
+    )
+    
+    logger.info("=" * 50)
+    logger.info("Verificación de Conexión AWS con Boto3")
+    logger.info("=" * 50)
     verificar_conexion()
 
-    
